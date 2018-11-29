@@ -1,4 +1,4 @@
 # pygui
 a python gui framework.
 
-![gui](./img/gui.jpg "Optional title")
+![gui](./img/gui.jpg "gui")
