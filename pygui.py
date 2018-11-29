@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-
-import includes as Tk
+import Tkinter as Tk
 
 
 class Layout(object):
@@ -10,7 +9,7 @@ class Layout(object):
     def do_layout(self, parent):
         pass
 
-    def add(self, comp, pos):
+    def add(self, comp, position):
         pass
 
 
@@ -19,11 +18,11 @@ class BorderLayout(Layout):
         Layout.__init__(self)
         self.__components = {}
 
-    def add(self, comp, pos):
-        self.__components[pos] = comp
+    def add(self, comp, position):
+        self.__components[position] = comp
 
-    def __place_comp(self, parent, pos, pos_para):
-        comp = self.__components.get(pos)
+    def __place_comp(self, parent, position, pos_para):
+        comp = self.__components.get(position)
         if comp:
             pos_comp = comp.make_comp(parent)
             pos_comp.grid(**pos_para)
@@ -35,24 +34,14 @@ class BorderLayout(Layout):
         parent.rowconfigure(0, weight=1)
         parent.rowconfigure(1, weight=10)
         parent.rowconfigure(2, weight=1)
-        self.__place_comp(parent, "north",
-            {"row":0, "column": 0, "columnspan": 3, "sticky": Tk.NSEW})
-
-        self.__place_comp(parent, "south",
-            {"row":2, "column": 0, "columnspan": 3, "sticky": Tk.NSEW})
-
-        self.__place_comp(parent, "west",
-            {"row":1, "column": 0, "sticky": Tk.NSEW})
-
-        self.__place_comp(parent, "east",
-            {"row":1, "column": 2, "sticky": Tk.NSEW})
-
-        self.__place_comp(parent, "center",
-            {"row":1, "column": 1, "sticky": Tk.NSEW})
+        self.__place_comp(parent, "north", {"row": 0, "column": 0, "columnspan": 3, "sticky": Tk.NSEW})
+        self.__place_comp(parent, "south", {"row": 2, "column": 0, "columnspan": 3, "sticky": Tk.NSEW})
+        self.__place_comp(parent, "west", {"row": 1, "column": 0, "sticky": Tk.NSEW})
+        self.__place_comp(parent, "east", {"row": 1, "column": 2, "sticky": Tk.NSEW})
+        self.__place_comp(parent, "center", {"row": 1, "column": 1, "sticky": Tk.NSEW})
 
 
-
-class Componet(object):
+class Component(object):
     def __init__(self):
         self.layout = Layout()
 
@@ -62,13 +51,13 @@ class Componet(object):
     def make_comp(self, parent):
         pass
 
-    def add(self, comp, pos=None):
-        self.layout.add(comp, pos)
+    def add(self, comp, position=None):
+        self.layout.add(comp, position)
 
 
-class TextField(Componet):
+class TextField(Component):
     def __init__(self, text=""):
-        Componet.__init__(self)
+        Component.__init__(self)
         self.text = text
 
     def make_comp(self, parent):
@@ -76,18 +65,19 @@ class TextField(Componet):
         return text_filed
 
 
-class Label(Componet):
+class Label(Component):
     def __init__(self, text=""):
-        Componet.__init__(self)
+        Component.__init__(self)
         self.text = text
 
     def make_comp(self, parent):
         label = Tk.Label(parent, text=self.text)
         return label
 
-class Button(Componet):
+
+class Button(Component):
     def __init__(self, text="", action=None):
-        Componet.__init__(self)
+        Component.__init__(self)
         self.text = text
         self.action = action
 
@@ -95,27 +85,26 @@ class Button(Componet):
         button = Tk.Button(parent, text=self.text, command=self.action)
         return button
 
-class Frame(Componet):
-    def __init__(self, width=800, height=400):
-        Componet.__init__(self)
+
+class Frame(Component):
+    def __init__(self, title="PyGUI", width=800, height=400):
+        Component.__init__(self)
         self.width = width
         self.height = height
-        self.root = Tk.Tk()
+        self.root = Tk.Tk(className=title)
         self.frame = Tk.Frame(self.root)
-        print self.root.configure()
         self.set_center()
 
     def set_center(self):
-        screen_width =  self.root.winfo_screenwidth()
-        screen_height =  self.root.winfo_screenheight()
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
         pos_x = (screen_width - self.width) / 2
         pos_y = (screen_height - self.height) / 2
-        self.root.geometry("%sx%s+%s+%s"%(self.width, self.height, pos_x, pos_y))
+        self.root.geometry("%sx%s+%s+%s" % (self.width, self.height, pos_x, pos_y))
 
     def show(self):
-        self.frame.grid(row=0,column=0, sticky=Tk.NSEW)
+        self.frame.grid(row=0, column=0, sticky=Tk.NSEW)
         root = self.root
-        content = self.frame
         root.columnconfigure(0, weight=1)
         root.rowconfigure(0, weight=1)
         self.layout.do_layout(self.frame)
@@ -123,9 +112,9 @@ class Frame(Componet):
         self.root.mainloop()
 
 
-class Panel(Componet):
+class Panel(Component):
     def __init__(self, width=800, height=400):
-        Componet.__init__(self)
+        Component.__init__(self)
         self.width = width
         self.height = height
 
@@ -140,19 +129,19 @@ def hello():
 
 
 if __name__ == "__main__":
-    FRAME = Frame(width=400, height=200)
+    FRAME = Frame(width=800, height=400)
     FRAME.set_layout(BorderLayout())
     FRAME.add(Button("center", action=hello), "center")
     FRAME.add(Button("north"), "north")
     FRAME.add(Button("south"), "south")
     FRAME.add(Button("west"), "west")
     FRAME.add(Button("east"), "east")
-    for pos in ["south", "north", "east", "west"]:
+    for pos in ["center", "south", "north", "east", "west"]:
         PANEL = Panel()
         PANEL.set_layout(BorderLayout())
         PANEL.add(Button("center", action=hello), "center")
-        PANEL.add(TextField(), "north")
-        PANEL.add(Label("south"), "south")
+        PANEL.add(Button("north"), "north")
+        PANEL.add(Button("south"), "south")
         PANEL.add(Button("west"), "west")
         PANEL.add(Button("east"), "east")
         FRAME.add(PANEL, pos)
